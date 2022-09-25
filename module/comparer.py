@@ -1,5 +1,3 @@
-from email.mime import image
-
 import cv2 as cv
 from sface import SFace
 from yunet import YuNet
@@ -34,9 +32,11 @@ class Comparer:
             targetId=Comparer.target[0])
         
         self.images = []
-        for item in standard:
+        self.order = []
+        for idx, item in enumerate(standard):
+            self.order.append(idx)
+
             image = cv.imread('./image/' + item + '.jpg')
-            
             self.detector.setInputSize([image.shape[1], image.shape[0]])
             processed = self.detector.infer(image)
             self.images.append([
@@ -55,10 +55,9 @@ class Comparer:
                 return Comparer.undefined
         except:
             return Comparer.undefined
-
-        result = []
-
-        for idx, item in enumerate(self.images):
+            
+        for idx in self.order:
+            item = self.images[idx]
             res = self.recognizer.match(item[0], item[1][0][:-1], img2, face2[0][:-1])
             if res:
                 return self.standard[idx]
